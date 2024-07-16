@@ -2,7 +2,7 @@ import express from "express";
 import ViteExpress from "vite-express";
 import mysql from "mysql2";
 import crypto from "crypto";
-
+import session from "express-session";
 const app = express();
 
 ViteExpress.listen(app, 3000, () =>
@@ -10,6 +10,15 @@ ViteExpress.listen(app, 3000, () =>
 );
 
 app.use(express.urlencoded({ extended: false }));
+app.use(
+  session({
+    secret: "something secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(express.json());
 
 let connection = mysql.createConnection({
   host: "localhost",
@@ -30,6 +39,7 @@ app.get("/hello", (request, response) => {
 });
 
 app.post("/login", (req, res) => {
+  console.log(req.body);
   try {
     let { email, password } = req.body;
     const hash = crypto.createHash("md5").update(password).digest("hex");
@@ -39,7 +49,7 @@ app.post("/login", (req, res) => {
         return res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.redirect("/");
-        else return res.redirect("/mypage");
+        else return res.sendStatus(200);
       }
     });
   } catch (error) {
@@ -59,7 +69,7 @@ app.post("/registration", (req, res) => {
         console.log(err);
         return res.sendStatus(400);
       } else {
-        return res.redirect("/mypage");
+        return res.sendStatus(200);
       }
     });
   } catch (error) {
