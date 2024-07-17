@@ -1,8 +1,10 @@
 import express from "express";
 import ViteExpress from "vite-express";
 import mysql from "mysql2";
-import crypto from "crypto";
+import crypto, { generateKey } from "crypto";
 import session from "express-session";
+import jwt from "jsonwebtoken";
+import auth from "./middleware/auth";
 const app = express();
 
 ViteExpress.listen(app, 3000, () =>
@@ -38,8 +40,18 @@ app.get("/hello", (request, response) => {
   }
 });
 
+const secretKey = "secret";
+
+function generateAccessToken(id, name, email) {
+  const payload = {
+    id,
+    name,
+    email,
+  };
+  return jwt.sign(payload, secretKey, { expiresIn: "24h" });
+}
+
 app.post("/login", (req, res) => {
-  console.log(req.body);
   try {
     let { email, password } = req.body;
     const hash = crypto.createHash("md5").update(password).digest("hex");
@@ -49,7 +61,17 @@ app.post("/login", (req, res) => {
         return res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.redirect("/");
-        else return res.sendStatus(200);
+        else {
+          const token = generateAccessToken(
+            results[0].id,
+            results[0].name,
+            results[0].email
+          );
+          res.cookie("token", `Bearer ${token}`, {
+            httpOnly: true,
+          });
+          return res.sendStatus(200);
+        }
       }
     });
   } catch (error) {
@@ -76,4 +98,8 @@ app.post("/registration", (req, res) => {
     console.error(error);
     res.status(500).send("Внутренняя ошибка сервера");
   }
+});
+
+app.get("/home", auth, (req, res) => {
+  res.send("AS");
 });
