@@ -10,7 +10,6 @@ export default function (req, res, next) {
         next()
     }
     catch(e){
-        console.log(e)
-        return res.json({message:"Пользователь не авторизован"})
+        return res.sendStatus(400)
     }
 }

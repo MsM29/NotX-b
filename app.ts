@@ -101,5 +101,5 @@ app.post("/registration", (req, res) => {
 });
 
 app.get("/home", auth, (req, res) => {
-  res.send("AS");
+  res.sendStatus(200);
 });
