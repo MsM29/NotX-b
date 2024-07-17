@@ -36,7 +36,7 @@ app.get("/hello", (request, response) => {
   try {
     console.log("Запрос на главную страницу");
   } catch (error) {
-    response.status(500).send("Внутренняя ошибка сервера");
+    response.status(500).json({message:"Внутренняя ошибка сервера"});
   }
 });
 
@@ -58,9 +58,9 @@ app.post("/login", (req, res) => {
     connection.query(sqlLogin, [email, hash], function (err, results) {
       if (err) {
         console.log(err);
-        return res.sendStatus(400);
+        return res.status(500).json({message:"Внутренняя ошибка сервера"});
       } else {
-        if (Object.keys(results).length === 0) res.redirect("/");
+        if (Object.keys(results).length === 0) res.status(500).json({message:"Такого пользователя не существует!"});
         else {
           const token = generateAccessToken(
             results[0].id,
@@ -76,7 +76,7 @@ app.post("/login", (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Внутренняя ошибка сервера");
+    res.status(500).json({message:"Внутренняя ошибка сервера"});
   }
 });
 
@@ -89,14 +89,14 @@ app.post("/registration", (req, res) => {
     connection.query(sqlRegistration, [values], function (err, results) {
       if (err) {
         console.log(err);
-        return res.sendStatus(400);
+        return res.status(400).json({message:"Ошибка! Пользователь с такой почтой уже существует!"});
       } else {
         return res.sendStatus(200);
       }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Внутренняя ошибка сервера");
+    res.status(500).json({message:"Внутренняя ошибка сервера"});
   }
 });
 
