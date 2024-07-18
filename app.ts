@@ -16,10 +16,7 @@ ViteExpress.listen(app, 3000, () =>
 );
 
 app.use(express.urlencoded({ extended: false }));
-
 app.use(express.json());
-
-console.log(process.env.DB_USER)
 
 let connection = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -30,14 +27,6 @@ let connection = mysql.createConnection({
 
 const sqlRegistration = `INSERT INTO users(name, email, password) VALUES(?)`;
 const sqlLogin = `SELECT * FROM users WHERE email=? AND password=?;`;
-
-app.get("/hello", (request, response) => {
-  try {
-    console.log("Запрос на главную страницу");
-  } catch (error) {
-    response.status(500).json({ message: "Внутренняя ошибка сервера" });
-  }
-});
 
 const secretKey = "secret";
 

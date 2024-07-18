@@ -3,7 +3,6 @@ const secretKey = "secret";
 
 export default function (req, res, next) {
     try{
-        console.log(req.headers.cookie)
         const token = req.headers.cookie.slice(15)
         const decodedData=jwt.verify(token, secretKey)
         req.user=decodedData
