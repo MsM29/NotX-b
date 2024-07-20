@@ -10,7 +10,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: __dirname+"/.env" })
+dotenv.config({ path: __dirname + "/.env" });
 ViteExpress.listen(app, 3000, () =>
   console.log("Server is listening on port 3000...")
 );
@@ -25,9 +25,6 @@ let connection = mysql.createConnection({
   password: process.env.DB_PASSWORD,
 });
 
-const sqlRegistration = `INSERT INTO users(name, email, password) VALUES(?)`;
-const sqlLogin = `SELECT * FROM users WHERE email=? AND password=?;`;
-
 const secretKey = "secret";
 
 function generateAccessToken(id, name, email) {
@@ -38,6 +35,8 @@ function generateAccessToken(id, name, email) {
   };
   return jwt.sign(payload, secretKey, { expiresIn: "24h" });
 }
+
+const sqlLogin = `SELECT * FROM users WHERE email=? AND password=?;`;
 
 app.post("/login", (req, res) => {
   try {
@@ -71,20 +70,20 @@ app.post("/login", (req, res) => {
   }
 });
 
+const sqlRegistration = `INSERT INTO users(name, login, email, password) VALUES(?)`;
+
 app.post("/registration", (req, res) => {
   try {
     let { name, email, password } = req.body;
     const hash = crypto.createHash("md5").update(password).digest("hex");
-    let values = [name, email, hash];
+    let values = [name, name, email, hash];
 
     connection.query(sqlRegistration, [values], function (err, results) {
       if (err) {
         console.log(err);
-        return res
-          .status(400)
-          .json({
-            message: "Ошибка! Пользователь с такой почтой уже существует!",
-          });
+        return res.status(400).json({
+          message: "Ошибка! Пользователь с такой почтой уже существует!",
+        });
       } else {
         return res.sendStatus(200);
       }
@@ -95,6 +94,27 @@ app.post("/registration", (req, res) => {
   }
 });
 
-app.get("/home", auth, (req, res) => {
-  res.sendStatus(200);
+const sqlHome = "SELECT * FROM users WHERE id=?";
+import { Request } from "express"; // Пример с express
+
+interface MyRequest extends Request {
+  user: {
+    id: number,
+    name: string;
+    login: string;
+    bio: string;
+    photoProfile: string;
+    wallpaper: string;
+  };
+}
+
+app.get("/home", auth, (req: MyRequest, res) => {
+  connection.query(sqlHome, [req.user.id], function (err, results) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(results);
+      res.status(200).send(results);
+    }
+  });
 });
