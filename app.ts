@@ -99,7 +99,7 @@ import { Request } from "express"; // Пример с express
 
 interface MyRequest extends Request {
   user: {
-    id: number,
+    id: number;
     name: string;
     login: string;
     bio: string;
@@ -117,4 +117,13 @@ app.get("/home", auth, (req: MyRequest, res) => {
       res.status(200).send(results);
     }
   });
+});
+
+app.get("/logout", (req, res) => {
+  try {
+    res.clearCookie("token").sendStatus(200);
+  } catch (err) {
+    console.log(err)
+    res.sendStatus(400);
+  }
 });
