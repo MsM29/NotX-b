@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 import ViteExpress from "vite-express";
 import mysql from "mysql2";
 import crypto from "crypto";
@@ -10,6 +10,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 dotenv.config({ path: __dirname + "/.env" });
 ViteExpress.listen(app, 3000, () =>
   console.log("Server is listening on port 3000...")
@@ -95,7 +96,6 @@ app.post("/registration", (req, res) => {
 });
 
 const sqlHome = "SELECT * FROM users WHERE id=?";
-import { Request } from "express"; // Пример с express
 
 interface MyRequest extends Request {
   user: {
@@ -113,7 +113,6 @@ app.get("/home", auth, (req: MyRequest, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(results);
       res.status(200).send(results);
     }
   });
@@ -123,7 +122,35 @@ app.get("/logout", (req, res) => {
   try {
     res.clearCookie("token").sendStatus(200);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.sendStatus(400);
   }
+});
+
+const insertPublication =
+  "INSERT INTO publications (`user`, `text`, `date`) VALUES (?);";
+
+app.post("/makePublication", auth, (req: MyRequest, res) => {
+  const values = [req.user.name, req.body.text, new Date()];
+  connection.query(insertPublication, [values], (err) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else res.sendStatus(200);
+  });
+});
+
+const selectPublication =
+  "SELECT * FROM publications WHERE user=? ORDER BY date DESC";
+
+app.get("/getPublication", auth, (req: MyRequest, res) => {
+  connection.query(selectPublication, [req.user.name], (err, results) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      console.log(results);
+      res.status(200).send(results);
+    }
+  });
 });
