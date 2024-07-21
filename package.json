@@ -7,6 +7,7 @@
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^3.10.3",
     "vite": "^5.3.4",
     "vite-express": "^0.17.0"

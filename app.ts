@@ -8,6 +8,8 @@ const app = express();
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import multer from "multer";
+import { Express, Multer } from "multer";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -105,7 +107,8 @@ interface MyRequest extends Request {
     bio: string;
     photoProfile: string;
     wallpaper: string;
-  };
+  },
+  file?: Express.Multer.File; //
 }
 
 app.get("/home", auth, (req: MyRequest, res) => {
@@ -132,13 +135,51 @@ const insertPublication =
 
 app.post("/makePublication", auth, (req: MyRequest, res) => {
   const values = [req.user.name, req.body.text, new Date()];
-  connection.query(insertPublication, [values], (err) => {
+  connection.query(insertPublication, [values], (err, results) => {
     if (err) {
       console.log(err);
       res.sendStatus(400);
-    } else res.sendStatus(200);
+    } else {
+      console.log(results);
+      res.status(200).send(results);
+    }
   });
 });
+
+var storage = multer.diskStorage({
+  destination: "./mediaPublication/",
+  filename: function (req, file, cb) {
+    cb(null, req.headers.name);
+  },
+});
+const upload = multer({ storage: storage });
+
+const insertMedia =
+  "INSERT INTO media_publication (`id_post`, `media_name`, `format`) VALUES (?);";
+
+app.post(
+  "/addMedia",
+  auth,
+  upload.single("filedata"),
+  (req: MyRequest, res) => {
+    let filedata = req.file;
+    console.log(filedata);
+    if (!filedata) {
+      res.sendStatus(400);
+    } else {
+      const brokenName = req.file.filename.split("_");
+      const values = [brokenName[2], req.file.filename, brokenName[0]];
+      connection.query(insertMedia, [values], (err, results) => {
+        if (err) {
+          console.log(err);
+          res.sendStatus(400);
+        } else {
+          res.status(200);
+        }
+      });
+    }
+  }
+);
 
 const selectPublication =
   "SELECT * FROM publications WHERE user=? ORDER BY date DESC";
@@ -149,7 +190,21 @@ app.get("/getPublication", auth, (req: MyRequest, res) => {
       console.log(err);
       res.sendStatus(400);
     } else {
-      console.log(results);
+      res.status(200).send(results);
+    }
+  });
+});
+
+const selectMedia = "SELECT * FROM media_publication WHERE id_post=?";
+
+app.post("/getMedia", auth, (req: MyRequest, res) => {
+  console.log(req.body.id_post)
+  connection.query(selectMedia, [req.body.id_post], (err, results) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      console.log(results)
       res.status(200).send(results);
     }
   });
