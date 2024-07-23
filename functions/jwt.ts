@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 const secretKey = "secret";
 
-export default function (req, res, next) {
+export function auth (req, res, next) {
     try{
         const token = req.headers.cookie.slice(15)
         const decodedData=jwt.verify(token, secretKey)
@@ -11,4 +11,13 @@ export default function (req, res, next) {
     catch(e){
         return res.sendStatus(400)
     }
+}
+
+export function generateAccessToken(id, name, email) {
+  const payload = {
+    id,
+    name,
+    email,
+  };
+  return jwt.sign(payload, secretKey, { expiresIn: "24h" });
 }
