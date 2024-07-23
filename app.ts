@@ -107,7 +107,7 @@ interface MyRequest extends Request {
     bio: string;
     photoProfile: string;
     wallpaper: string;
-  },
+  };
   file?: Express.Multer.File; //
 }
 
@@ -140,7 +140,6 @@ app.post("/makePublication", auth, (req: MyRequest, res) => {
       console.log(err);
       res.sendStatus(400);
     } else {
-      console.log(results);
       res.status(200).send(results);
     }
   });
@@ -163,7 +162,6 @@ app.post(
   upload.single("filedata"),
   (req: MyRequest, res) => {
     let filedata = req.file;
-    console.log(filedata);
     if (!filedata) {
       res.sendStatus(400);
     } else {
@@ -198,13 +196,25 @@ app.get("/getPublication", auth, (req: MyRequest, res) => {
 const selectMedia = "SELECT * FROM media_publication WHERE id_post=?";
 
 app.post("/getMedia", auth, (req: MyRequest, res) => {
-  console.log(req.body.id_post)
   connection.query(selectMedia, [req.body.id_post], (err, results) => {
     if (err) {
       console.log(err);
       res.sendStatus(400);
     } else {
-      console.log(results)
+      res.status(200).send(results);
+    }
+  });
+});
+
+const selectUser="SELECT name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ?;"
+
+app.get("/search", auth, (req, res) => {
+  const searchText = `%${req.query.user}%`;
+  connection.query(selectUser, [searchText, searchText], (err, results) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
       res.status(200).send(results);
     }
   });
