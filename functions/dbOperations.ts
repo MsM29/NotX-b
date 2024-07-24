@@ -7,7 +7,7 @@ dotenv.config({ path: __dirname + "/.env" });
 import { generateAccessToken } from "./jwt";
 import mysql from "mysql2";
 
-let connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   database: process.env.DB,
@@ -32,7 +32,7 @@ export function loginDB(values, res) {
           const token = generateAccessToken(
             results[0].id,
             results[0].name,
-            results[0].email
+            results[0].email,
           );
           res.cookie("token", `Bearer ${token}`, {
             httpOnly: true,
@@ -40,7 +40,7 @@ export function loginDB(values, res) {
           return res.sendStatus(200);
         }
       }
-    }
+    },
   );
 }
 
@@ -57,7 +57,7 @@ export function registrationDB(values, res) {
       } else {
         return res.sendStatus(200);
       }
-    }
+    },
   );
 }
 
@@ -71,7 +71,7 @@ export function homeDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    }
+    },
   );
 }
 
@@ -86,7 +86,7 @@ export function makePublicationDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    }
+    },
   );
 }
 
@@ -101,7 +101,7 @@ export function addMediaDB(values, res) {
       } else {
         res.status(200);
       }
-    }
+    },
   );
 }
 
@@ -116,7 +116,7 @@ export function getPublicationDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    }
+    },
   );
 }
 
@@ -131,7 +131,7 @@ export function getMediaDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    }
+    },
   );
 }
 
@@ -146,6 +146,6 @@ export function searchDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    }
+    },
   );
 }

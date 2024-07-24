@@ -8,7 +8,7 @@ import { Express, Multer } from "multer";
 import * as db from "./functions/dbOperations";
 
 ViteExpress.listen(app, 3000, () =>
-  console.log("Server is listening on port 3000...")
+  console.log("Server is listening on port 3000..."),
 );
 
 app.use(express.urlencoded({ extended: false }));
@@ -70,11 +70,10 @@ app.post(
   (req: MyRequest, res) => {
     let filedata = req.file;
     if (filedata) {
-      console.log("pfi")
       const brokenName = req.file.filename.split("_");
       db.addMediaDB([brokenName[2], req.file.filename, brokenName[0]], res);
     }
-  }
+  },
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
