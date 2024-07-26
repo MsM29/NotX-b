@@ -23,7 +23,6 @@ export function loginDB(values, res) {
         console.log(err);
         return res.status(400).json({ message: "Ошибка входа" });
       } else {
-        console.log(results);
         if (Object.keys(results).length === 0)
           res
             .status(400)
@@ -99,7 +98,7 @@ export function addMediaDB(values, res) {
         console.log(err);
         res.sendStatus(400);
       } else {
-        res.status(200);
+        res.sendStatus(200);
       }
     },
   );

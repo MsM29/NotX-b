@@ -3,8 +3,7 @@ import ViteExpress from "vite-express";
 import crypto from "crypto";
 import { auth } from "./functions/jwt";
 const app = express();
-import multer from "multer";
-import { Express, Multer } from "multer";
+import multer, { Express } from "multer";
 import * as db from "./functions/dbOperations";
 
 ViteExpress.listen(app, 3000, () =>
@@ -15,13 +14,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.post("/login", (req, res) => {
-  let { email, password } = req.body;
+  const { email, password } = req.body;
   const hash = crypto.createHash("md5").update(password).digest("hex");
   db.loginDB([email, hash], res);
 });
 
 app.post("/registration", (req, res) => {
-  let { name, email, password } = req.body;
+  const { name, email, password } = req.body;
   const hash = crypto.createHash("md5").update(password).digest("hex");
   db.registrationDB([name, name, email, hash], res);
 });
@@ -55,7 +54,7 @@ app.post("/makePublication", auth, (req: MyRequest, res) => {
   db.makePublicationDB([req.user.name, req.body.text, new Date()], res);
 });
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: "./mediaPublication/",
   filename: function (req, file, cb) {
     cb(null, req.headers.name);
@@ -68,7 +67,7 @@ app.post(
   auth,
   upload.single("filedata"),
   (req: MyRequest, res) => {
-    let filedata = req.file;
+    const filedata = req.file;
     if (filedata) {
       const brokenName = req.file.filename.split("_");
       db.addMediaDB([brokenName[2], req.file.filename, brokenName[0]], res);
