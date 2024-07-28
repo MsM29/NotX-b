@@ -150,3 +150,18 @@ export function searchDB(values, res) {
     },
   );
 }
+
+export function deletePublicationDB(values,res){
+  connection.query(
+    "DELETE FROM publications WHERE id_post=?",
+    values,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200)
+      }
+    },
+  );
+}

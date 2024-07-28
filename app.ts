@@ -87,3 +87,7 @@ app.post("/getMedia", auth, (req: MyRequest, res) => {
 app.get("/search", auth, (req, res) => {
   db.searchDB([`%${req.query.user}%`, `%${req.query.user}%`], res);
 });
+
+app.get("/delete", auth, (req, res) => {
+  db.deletePublicationDB([req.query.id_post], res);
+});
