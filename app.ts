@@ -2,9 +2,10 @@ import express, { Request } from "express";
 import ViteExpress from "vite-express";
 import crypto from "crypto";
 import { auth } from "./functions/jwt";
-const app = express();
 import multer, { Express } from "multer";
 import * as db from "./functions/dbOperations";
+
+const app = express();
 
 ViteExpress.listen(app, 3000, () =>
   console.log("Server is listening on port 3000..."),
