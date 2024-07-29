@@ -53,7 +53,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.post("/makePublication", auth, (req: MyRequest, res) => {
-  db.makePublicationDB([req.user.name, req.body.text, new Date()], res);
+  db.makePublicationDB([req.user.login, req.body.text, new Date()], res);
 });
 
 app.post(
@@ -70,7 +70,7 @@ app.post(
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
-  db.getPublicationDB([req.user.name], res);
+  db.getPublicationDB([req.user.login], res);
 });
 
 app.post("/getMedia", auth, (req: MyRequest, res) => {
@@ -106,3 +106,11 @@ app.post(
     res.sendStatus(200);
   },
 );
+
+app.get("/users", auth, (req: MyRequest, res) => {
+  db.userDB([req.query.user], res);
+});
+
+app.get("/getUserPublication", auth, (req: MyRequest, res) => {
+  db.userPublicationDB([req.query.login], res);
+});

@@ -12,10 +12,10 @@ export function auth(req, res, next) {
   }
 }
 
-export function generateAccessToken(id, name, email) {
+export function generateAccessToken(id, login, email) {
   const payload = {
     id,
-    name,
+    login,
     email,
   };
   return jwt.sign(payload, secretKey, { expiresIn: "24h" });

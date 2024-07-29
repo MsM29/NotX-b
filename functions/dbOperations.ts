@@ -32,7 +32,7 @@ export function loginDB(values, res) {
         else {
           const token = generateAccessToken(
             results[0].id,
-            results[0].name,
+            results[0].login,
             results[0].email,
           );
           res.cookie("token", `Bearer ${token}`, {
@@ -138,7 +138,7 @@ export function getMediaDB(values, res) {
 
 export function searchDB(values, res) {
   connection.query(
-    "SELECT name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ?",
+    "SELECT id, name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ?",
     values,
     (err, results) => {
       if (err) {
@@ -176,6 +176,36 @@ export function editProfileDB(values, res) {
         res.sendStatus(400);
       } else {
         res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function userDB(values,res){
+  connection.query(
+    "SELECT * FROM users WHERE login=?",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function userPublicationDB(values, res) {
+  connection.query(
+    "SELECT * FROM publications WHERE user=? ORDER BY date DESC",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
       }
     },
   );
