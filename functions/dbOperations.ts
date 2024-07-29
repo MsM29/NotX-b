@@ -181,7 +181,7 @@ export function editProfileDB(values, res) {
   );
 }
 
-export function userDB(values,res){
+export function userDB(values, res) {
   connection.query(
     "SELECT * FROM users WHERE login=?",
     values,
@@ -206,6 +206,52 @@ export function userPublicationDB(values, res) {
         res.sendStatus(400);
       } else {
         res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function subscribeDB(values, res) {
+  connection.query(
+    "INSERT INTO subscriptions (`user`, `sub`) VALUES (?);",
+    [values],
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function unsubscribeDB(values, res) {
+  connection.query(
+    "DELETE FROM subscriptions WHERE user=? AND sub=?",
+    values,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function checkSubscriptionDB(values, res) {
+  connection.query(
+    "SELECT * FROM subscriptions WHERE user=? AND sub=?",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        if (Object.keys(results).length === 0) res.sendStatus(400);
+        else return res.sendStatus(200);
       }
     },
   );

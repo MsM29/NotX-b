@@ -114,3 +114,15 @@ app.get("/users", auth, (req: MyRequest, res) => {
 app.get("/getUserPublication", auth, (req: MyRequest, res) => {
   db.userPublicationDB([req.query.login], res);
 });
+
+app.get("/subscribe", auth, (req: MyRequest, res) => {
+  db.subscribeDB([req.user.login, req.query.login], res);
+});
+
+app.get("/unsubscribe", auth, (req: MyRequest, res) => {
+  db.unsubscribeDB([req.user.login, req.query.login], res);
+});
+
+app.get("/checkSubscription", auth, (req: MyRequest, res) => {
+  db.checkSubscriptionDB([req.user.login, req.query.login], res);
+});
