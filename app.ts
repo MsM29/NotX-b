@@ -2,8 +2,9 @@ import express, { Request } from "express";
 import ViteExpress from "vite-express";
 import crypto from "crypto";
 import { auth } from "./functions/jwt";
-import multer, { Express } from "multer";
+import { Express } from "multer";
 import * as db from "./functions/dbOperations";
+import * as storage from "./functions/storage";
 
 const app = express();
 
@@ -55,18 +56,10 @@ app.post("/makePublication", auth, (req: MyRequest, res) => {
   db.makePublicationDB([req.user.name, req.body.text, new Date()], res);
 });
 
-const storage = multer.diskStorage({
-  destination: "./mediaPublication/",
-  filename: function (req, file, cb) {
-    cb(null, req.headers.name);
-  },
-});
-const upload = multer({ storage: storage });
-
 app.post(
   "/addMedia",
   auth,
-  upload.single("filedata"),
+  storage.upload.single("filedata"),
   (req: MyRequest, res) => {
     const filedata = req.file;
     if (filedata) {
@@ -91,3 +84,25 @@ app.get("/search", auth, (req, res) => {
 app.get("/delete", auth, (req, res) => {
   db.deletePublicationDB([req.query.id_post], res);
 });
+
+app.post("/editProfile", auth, (req: MyRequest, res) => {
+  db.editProfileDB([req.body.name, req.body.bio, req.user.id], res);
+});
+
+app.post(
+  "/editPhotoProfile",
+  auth,
+  storage.uploadProfilePhoto.single("filedata"),
+  (req, res) => {
+    res.sendStatus(200);
+  },
+);
+
+app.post(
+  "/editWallpaperProfile",
+  auth,
+  storage.uploadWallpaper.single("filedata"),
+  (req, res) => {
+    res.sendStatus(200);
+  },
+);

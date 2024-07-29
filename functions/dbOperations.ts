@@ -151,7 +151,7 @@ export function searchDB(values, res) {
   );
 }
 
-export function deletePublicationDB(values,res){
+export function deletePublicationDB(values, res) {
   connection.query(
     "DELETE FROM publications WHERE id_post=?",
     values,
@@ -160,7 +160,22 @@ export function deletePublicationDB(values,res){
         console.log(err);
         res.sendStatus(400);
       } else {
-        res.sendStatus(200)
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function editProfileDB(values, res) {
+  connection.query(
+    "UPDATE users SET name=?, bio=? WHERE id=?;",
+    values,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
       }
     },
   );
