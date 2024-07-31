@@ -106,16 +106,31 @@ export function addMediaDB(values, res) {
   );
 }
 
-export function getPublicationDB(values, res) {
+export function getPublicationDB(values, offset, res) {
+  let rows: mysql.QueryResult;
+  let maxPage: number;
   connection.query(
-    "SELECT * FROM publications WHERE user=? ORDER BY date DESC",
-    values,
+    "SELECT * FROM publications WHERE user=? ORDER BY date DESC LIMIT 10 OFFSET ?",
+    [values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
-        res.status(200).send(results);
+        rows = results;
+      }
+    },
+  );
+  connection.query(
+    "SELECT COUNT(*) FROM publications WHERE user=?",
+    [values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+        res.status(200).json({ rows, maxPage });
       }
     },
   );
@@ -136,16 +151,31 @@ export function getMediaDB(values, res) {
   );
 }
 
-export function searchDB(values, res) {
+export function searchDB(values, offset, res) {
+  let rows: mysql.QueryResult;
+  let maxPage: number;
   connection.query(
-    "SELECT id, name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ?",
-    values,
+    "SELECT id, name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ? LIMIT 10 OFFSET ?",
+    [...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
-        res.status(200).send(results);
+        rows = results;
+      }
+    },
+  );
+  connection.query(
+    "SELECT COUNT(*) FROM users WHERE name LIKE ? OR login LIKE ?",
+    [...values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+        res.status(200).json({ rows, maxPage });
       }
     },
   );
@@ -195,22 +225,7 @@ export function userDB(values, res) {
     },
   );
 }
-
-export function userPublicationDB(values, res) {
-  connection.query(
-    "SELECT * FROM publications WHERE user=? ORDER BY date DESC",
-    values,
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        res.status(200).send(results);
-      }
-    },
-  );
-}
-
+  
 export function subscribeDB(values, res) {
   connection.query(
     "INSERT INTO subscriptions (`user`, `sub`) VALUES (?);",
@@ -257,49 +272,94 @@ export function checkSubscriptionDB(values, res) {
   );
 }
 
-export function subscriptionsDB(values, res) {
+export function subscriptionsDB(values, offset, res) {
+  let rows: mysql.QueryResult;
+  let maxPage: number;
   connection.query(
-    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?;",
-    values,
+    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ? LIMIT 10 OFFSET ?;",
+    [values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return res.status(200).send(results);
+        else return (rows = results);
+      }
+    },
+  );
+  connection.query(
+    "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?",
+    [values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+        res.status(200).json({ rows, maxPage });
       }
     },
   );
 }
 
-export function subscribersDB(values, res) {
+export function subscribersDB(values, offset, res) {
+  let rows: mysql.QueryResult;
+  let maxPage: number;
   connection.query(
-    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ?;",
-    values,
+    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ? LIMIT 10 OFFSET ?;",
+    [values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return res.status(200).send(results);
+        else return (rows = results);
+      }
+    },
+  );
+  connection.query(
+    "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ?",
+    [values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+        res.status(200).json({ rows, maxPage });
       }
     },
   );
 }
 
-export function feedDB(values, res) {
+export function feedDB(values, offset, res) {
+  let rows: mysql.QueryResult;
+  let maxPage: number;
   connection.query(
-    "SELECT p.*, u.* FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC;",
-    values,
+    "SELECT p.*, u.* FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC LIMIT 10 OFFSET ?;",
+    [values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return res.status(200).send(results);
+        else return (rows = results);
+      }
+    },
+  );
+  connection.query(
+    "SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)",
+    [values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+        res.status(200).json({ rows, maxPage });
       }
     },
   );

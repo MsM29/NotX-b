@@ -70,7 +70,8 @@ app.post(
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
-  db.getPublicationDB([req.user.login], res);
+  const offset = req.query.page || 0;
+  db.getPublicationDB(req.user.login, offset, res);
 });
 
 app.post("/getMedia", auth, (req: MyRequest, res) => {
@@ -78,7 +79,9 @@ app.post("/getMedia", auth, (req: MyRequest, res) => {
 });
 
 app.get("/search", auth, (req, res) => {
-  db.searchDB([`%${req.query.user}%`, `%${req.query.user}%`], res);
+  const offset = req.query.page || 0;
+  console.log(req.query.user, offset);
+  db.searchDB([`%${req.query.user}%`, `%${req.query.user}%`], offset, res);
 });
 
 app.get("/delete", auth, (req, res) => {
@@ -112,7 +115,8 @@ app.get("/users", auth, (req: MyRequest, res) => {
 });
 
 app.get("/getUserPublication", auth, (req: MyRequest, res) => {
-  db.userPublicationDB([req.query.login], res);
+  const offset = req.query.page || 0;
+  db.getPublicationDB(req.query.login, offset, res);
 });
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
@@ -128,13 +132,16 @@ app.get("/checkSubscription", auth, (req: MyRequest, res) => {
 });
 
 app.get("/subscriptions", auth, (req: MyRequest, res) => {
-  db.subscriptionsDB([req.user.login], res);
+  const offset = req.query.page || 0;
+  db.subscriptionsDB(req.user.login, offset, res);
 });
 
 app.get("/subscribers", auth, (req: MyRequest, res) => {
-  db.subscribersDB([req.user.login], res);
+  const offset = req.query.page || 0;
+  db.subscribersDB(req.user.login, offset, res);
 });
 
 app.get("/feed", auth, (req: MyRequest, res) => {
-  db.feedDB([req.user.login], res);
+  const offset = req.query.page || 0;
+  db.feedDB(req.user.login, offset, res);
 });
