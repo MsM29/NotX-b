@@ -126,3 +126,11 @@ app.get("/unsubscribe", auth, (req: MyRequest, res) => {
 app.get("/checkSubscription", auth, (req: MyRequest, res) => {
   db.checkSubscriptionDB([req.user.login, req.query.login], res);
 });
+
+app.get("/subscriptions", auth, (req: MyRequest, res) => {
+  db.subscriptionsDB([req.user.login], res);
+});
+
+app.get("/subscribers", auth, (req: MyRequest, res) => {
+  db.subscribersDB([req.user.login], res);
+});

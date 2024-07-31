@@ -256,3 +256,36 @@ export function checkSubscriptionDB(values, res) {
     },
   );
 }
+
+export function subscriptionsDB(values, res) {
+  connection.query(
+    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?;",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        if (Object.keys(results).length === 0) res.sendStatus(400);
+        else return res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function subscribersDB(values, res) {
+  connection.query(
+    "SELECT u.* FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ?;",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        if (Object.keys(results).length === 0) res.sendStatus(400);
+        else return res.status(200).send(results);
+      }
+    },
+  );
+}
+
