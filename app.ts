@@ -134,3 +134,7 @@ app.get("/subscriptions", auth, (req: MyRequest, res) => {
 app.get("/subscribers", auth, (req: MyRequest, res) => {
   db.subscribersDB([req.user.login], res);
 });
+
+app.get("/feed", auth, (req: MyRequest, res) => {
+  db.feedDB([req.user.login], res);
+});

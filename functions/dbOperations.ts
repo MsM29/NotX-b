@@ -289,3 +289,18 @@ export function subscribersDB(values, res) {
   );
 }
 
+export function feedDB(values, res) {
+  connection.query(
+    "SELECT p.*, u.* FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC;",
+    values,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        if (Object.keys(results).length === 0) res.sendStatus(400);
+        else return res.status(200).send(results);
+      }
+    },
+  );
+}
