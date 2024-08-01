@@ -148,3 +148,10 @@ app.get("/feed", auth, (req: MyRequest, res) => {
 app.post("/setPrivacy", auth, (req: MyRequest, res) => {
   db.privacyDB([req.body.privacy, req.user.id], res);
 });
+
+app.post("/editPassword", auth, (req: MyRequest, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const oldHash = crypto.createHash("md5").update(oldPassword).digest("hex");
+  const newHash = crypto.createHash("md5").update(newPassword).digest("hex");
+  db.editPasswordDB(oldHash, [newHash,req.user.id], res);
+});

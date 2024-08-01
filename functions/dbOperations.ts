@@ -388,15 +388,47 @@ export function feedDB(values, offset, res) {
 }
 
 export function privacyDB(values, res) {
+  connection.query("UPDATE users SET private=? WHERE id=?;", values, (err) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      res.sendStatus(200);
+    }
+  });
+}
+
+export function editPasswordDB(oldHash, newHash, res) {
   connection.query(
-    "UPDATE users SET private=? WHERE id=?;",
-    values,
-    (err) => {
-      if (err) {
+    "SELECT * FROM users WHERE password=?",
+    [oldHash],
+    function (err, results) {
+      if ((err)) {
         console.log(err);
-        res.sendStatus(400);
+        return res.status(400).json({
+          message: "Неверный пароль!",
+        });
       } else {
-        res.sendStatus(200);
+        if (Object.keys(results).length === 0)
+          res.status(400).json({
+            message: "Неверный пароль!",
+          });
+        else {
+          connection.query(
+            "UPDATE users SET password=? WHERE id=?;",
+            newHash,
+            function (err) {
+              if (err) {
+                console.log(err);
+                return res.status(400).json({
+                  message: "Ошибка смены пароля!",
+                });
+              } else {
+                return res.sendStatus(200);
+              }
+            },
+          );
+        }
       }
     },
   );
