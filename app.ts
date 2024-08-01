@@ -144,3 +144,7 @@ app.get("/feed", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
   db.feedDB(req.user.login, offset, res);
 });
+
+app.post("/setPrivacy", auth, (req: MyRequest, res) => {
+  db.privacyDB([req.body.privacy, req.user.id], res);
+});

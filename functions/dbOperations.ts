@@ -171,7 +171,7 @@ export function searchDB(values, offset, res) {
   let rows: mysql.QueryResult;
   let maxPage: number;
   connection.query(
-    "SELECT id, name, login, photoProfile, bio FROM users WHERE name LIKE ? OR login LIKE ? LIMIT 10 OFFSET ?",
+    "SELECT id, name, login, bio FROM users WHERE name LIKE ? OR login LIKE ? LIMIT 10 OFFSET ?",
     [...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -382,6 +382,21 @@ export function feedDB(values, offset, res) {
             },
           );
         }
+      }
+    },
+  );
+}
+
+export function privacyDB(values, res) {
+  connection.query(
+    "UPDATE users SET private=? WHERE id=?;",
+    values,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
       }
     },
   );
