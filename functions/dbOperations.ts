@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { generateAccessToken } from "./jwt";
 import mysql from "mysql2";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +57,22 @@ export function registrationDB(values, res) {
           message: "Ошибка! Пользователь с такой почтой уже существует!",
         });
       } else {
-        return res.sendStatus(200);
+        fs.copyFile(
+          "../../NotX-f/vite-express-project/images/defaultPhotoProfile.png",
+          `../../NotX-f/vite-express-project/mediaProfile/profilePhoto/${values[0]}.png`,
+          (err) => {
+            if (err) console.log(err);
+            else
+              fs.copyFile(
+                "../../NotX-f/vite-express-project/images/defaultPhotoProfile.png",
+                `../../NotX-f/vite-express-project/mediaProfile/wallpaper/${values[0]}.png`,
+                (err) => {
+                  if (err) console.log(err);
+                  else res.sendStatus(200);
+                },
+              );
+          },
+        );
       }
     },
   );
@@ -118,19 +134,19 @@ export function getPublicationDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         rows = results;
-      }
-    },
-  );
-  connection.query(
-    "SELECT COUNT(*) FROM publications WHERE user=?",
-    [values],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
-        res.status(200).json({ rows, maxPage });
+        connection.query(
+          "SELECT COUNT(*) FROM publications WHERE user=?",
+          [values],
+          (err, results) => {
+            if (err) {
+              console.log(err);
+              res.sendStatus(400);
+            } else {
+              maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+              res.status(200).json({ rows, maxPage });
+            }
+          },
+        );
       }
     },
   );
@@ -163,19 +179,19 @@ export function searchDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         rows = results;
-      }
-    },
-  );
-  connection.query(
-    "SELECT COUNT(*) FROM users WHERE name LIKE ? OR login LIKE ?",
-    [...values],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
-        res.status(200).json({ rows, maxPage });
+        connection.query(
+          "SELECT COUNT(*) FROM users WHERE name LIKE ? OR login LIKE ?",
+          [...values],
+          (err, results) => {
+            if (err) {
+              console.log(err);
+              res.sendStatus(400);
+            } else {
+              maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+              res.status(200).json({ rows, maxPage });
+            }
+          },
+        );
       }
     },
   );
@@ -225,7 +241,7 @@ export function userDB(values, res) {
     },
   );
 }
-  
+
 export function subscribeDB(values, res) {
   connection.query(
     "INSERT INTO subscriptions (`user`, `sub`) VALUES (?);",
@@ -284,20 +300,22 @@ export function subscriptionsDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return (rows = results);
-      }
-    },
-  );
-  connection.query(
-    "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?",
-    [values],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
-        res.status(200).json({ rows, maxPage });
+        else {
+          rows = results;
+          connection.query(
+            "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?",
+            [values],
+            (err, results) => {
+              if (err) {
+                console.log(err);
+                res.sendStatus(400);
+              } else {
+                maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+                res.status(200).json({ rows, maxPage });
+              }
+            },
+          );
+        }
       }
     },
   );
@@ -315,20 +333,22 @@ export function subscribersDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return (rows = results);
-      }
-    },
-  );
-  connection.query(
-    "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ?",
-    [values],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
-        res.status(200).json({ rows, maxPage });
+        else {
+          rows = results;
+          connection.query(
+            "SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ?",
+            [values],
+            (err, results) => {
+              if (err) {
+                console.log(err);
+                res.sendStatus(400);
+              } else {
+                maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+                res.status(200).json({ rows, maxPage });
+              }
+            },
+          );
+        }
       }
     },
   );
@@ -346,20 +366,22 @@ export function feedDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return (rows = results);
-      }
-    },
-  );
-  connection.query(
-    "SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)",
-    [values],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
-        res.status(200).json({ rows, maxPage });
+        else {
+          rows = results;
+          connection.query(
+            "SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)",
+            [values],
+            (err, results) => {
+              if (err) {
+                console.log(err);
+                res.sendStatus(400);
+              } else {
+                maxPage = Math.ceil(results[0]["COUNT(*)"] / 10);
+                res.status(200).json({ rows, maxPage });
+              }
+            },
+          );
+        }
       }
     },
   );

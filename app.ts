@@ -80,7 +80,6 @@ app.post("/getMedia", auth, (req: MyRequest, res) => {
 
 app.get("/search", auth, (req, res) => {
   const offset = req.query.page || 0;
-  console.log(req.query.user, offset);
   db.searchDB([`%${req.query.user}%`, `%${req.query.user}%`], offset, res);
 });
 
