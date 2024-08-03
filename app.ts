@@ -71,7 +71,7 @@ app.post(
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.getPublicationDB(req.user.login, offset, res);
+  db.getPublicationDB([req.user.login,req.user.login], offset, res);
 });
 
 app.post("/getMedia", auth, (req: MyRequest, res) => {
@@ -153,5 +153,5 @@ app.post("/editPassword", auth, (req: MyRequest, res) => {
   const { oldPassword, newPassword } = req.body;
   const oldHash = crypto.createHash("md5").update(oldPassword).digest("hex");
   const newHash = crypto.createHash("md5").update(newPassword).digest("hex");
-  db.editPasswordDB(oldHash, [newHash,req.user.id], res);
+  db.editPasswordDB([newHash,oldHash , req.user.id], res);
 });
