@@ -115,7 +115,7 @@ app.get("/users", auth, (req: MyRequest, res) => {
 
 app.get("/getUserPublication", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.getPublicationDB(req.query.login, offset, res);
+  db.getPublicationDB([req.query.login,req.query.login], offset, res);
 });
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
@@ -154,4 +154,8 @@ app.post("/editPassword", auth, (req: MyRequest, res) => {
   const oldHash = crypto.createHash("md5").update(oldPassword).digest("hex");
   const newHash = crypto.createHash("md5").update(newPassword).digest("hex");
   db.editPasswordDB([newHash,oldHash , req.user.id], res);
+});
+
+app.get("/like", auth, (req: MyRequest, res) => {
+  db.likePublicationDB([req.query.post, req.user.login], res);
 });

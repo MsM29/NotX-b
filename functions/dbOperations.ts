@@ -124,7 +124,7 @@ export function addMediaDB(values, res) {
 
 export function getPublicationDB(values, offset, res) {
   connection.query(
-    "SELECT *, (SELECT COUNT(*) FROM publications WHERE user=?) AS total_count FROM publications WHERE user=? ORDER BY date DESC LIMIT 10 OFFSET ?",
+    "SELECT p.*, (SELECT COUNT(*) FROM likes WHERE id_post = p.id_post) AS likes_count, (SELECT COUNT(*) FROM publications WHERE user = ?) AS total_count FROM  publications p WHERE  p.user = ? ORDER BY  p.date DESC LIMIT 10 OFFSET ?;",
     [...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -296,7 +296,7 @@ export function subscribersDB(values, offset, res) {
 
 export function feedDB(values, offset, res) {
   connection.query(
-    "SELECT p.*, u.*, (SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)) AS total_count FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC LIMIT 10 OFFSET ?;",
+    "SELECT p.*, u.*, (SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)) AS total_count, (SELECT COUNT(*) FROM likes WHERE id_post = p.id_post) AS likes_count FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC LIMIT 10 OFFSET ?;",
     [values, values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -341,6 +341,30 @@ export function editPasswordDB(values, res) {
         else {
           return res.sendStatus(200);
         }
+      }
+    },
+  );
+}
+
+export function likePublicationDB(values, res) {
+  connection.query(
+    "INSERT INTO likes (id_post, login) VALUES (?);",
+    [values],
+    (err) => {
+      if (err) {
+        connection.query(
+          "DELETE FROM likes WHERE id_post=? AND login=?",
+          values,
+          (err) => {
+            if (err) {
+              res.sendStatus(400);
+            } else {
+              res.json({ message: "remove" });
+            }
+          },
+        );
+      } else {
+        res.json({ message: "put" });
       }
     },
   );
