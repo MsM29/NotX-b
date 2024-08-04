@@ -64,18 +64,14 @@ app.post(
     const filedata = req.file;
     if (filedata) {
       const brokenName = req.file.filename.split("_");
-      db.addMediaDB([brokenName[2], req.file.filename, brokenName[0]], res);
+      db.addMediaDB([req.file.filename, brokenName[0], brokenName[2]], res);
     }
   },
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.getPublicationDB([req.user.login,req.user.login], offset, res);
-});
-
-app.post("/getMedia", auth, (req: MyRequest, res) => {
-  db.getMediaDB([req.body.id_post], res);
+  db.getPublicationDB([req.user.login, req.user.login], offset, res);
 });
 
 app.get("/search", auth, (req, res) => {
@@ -115,7 +111,7 @@ app.get("/users", auth, (req: MyRequest, res) => {
 
 app.get("/getUserPublication", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.getPublicationDB([req.query.login,req.query.login], offset, res);
+  db.getPublicationDB([req.query.login, req.query.login], offset, res);
 });
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
@@ -153,7 +149,7 @@ app.post("/editPassword", auth, (req: MyRequest, res) => {
   const { oldPassword, newPassword } = req.body;
   const oldHash = crypto.createHash("md5").update(oldPassword).digest("hex");
   const newHash = crypto.createHash("md5").update(newPassword).digest("hex");
-  db.editPasswordDB([newHash,oldHash , req.user.id], res);
+  db.editPasswordDB([newHash, oldHash, req.user.id], res);
 });
 
 app.get("/like", auth, (req: MyRequest, res) => {
@@ -161,7 +157,10 @@ app.get("/like", auth, (req: MyRequest, res) => {
 });
 
 app.get("/likes", auth, (req: MyRequest, res) => {
-  console.log(req.query)
   const offset = req.query.page || 0;
   db.likesUserDB(req.query.post, offset, res);
+});
+
+app.get("/post", auth, (req: MyRequest, res) => {
+  db.postDB([req.query.post], res);
 });

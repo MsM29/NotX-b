@@ -109,8 +109,8 @@ export function makePublicationDB(values, res) {
 
 export function addMediaDB(values, res) {
   connection.query(
-    "INSERT INTO media_publication (`id_post`, `media_name`, `format`) VALUES (?);",
-    [values],
+    "UPDATE publications SET media=?, mediaType=? WHERE id_post=?;",
+    [...values],
     (err) => {
       if (err) {
         console.log(err);
@@ -126,21 +126,6 @@ export function getPublicationDB(values, offset, res) {
   connection.query(
     "SELECT p.*, (SELECT COUNT(*) FROM likes WHERE id_post = p.id_post) AS likes_count, (SELECT COUNT(*) FROM publications WHERE user = ?) AS total_count FROM  publications p WHERE  p.user = ? ORDER BY  p.date DESC LIMIT 10 OFFSET ?;",
     [...values, parseInt(offset) * 10],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        res.status(200).send(results);
-      }
-    },
-  );
-}
-
-export function getMediaDB(values, res) {
-  connection.query(
-    "SELECT * FROM media_publication WHERE id_post=?",
-    values,
     (err, results) => {
       if (err) {
         console.log(err);
@@ -373,15 +358,29 @@ export function likePublicationDB(values, res) {
 export function likesUserDB(values, offset, res) {
   connection.query(
     "SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
-    [values, values, offset * 10], 
+    [values, values, offset * 10],
     (err, results) => {
       if (err) {
         console.log(err);
         res.sendStatus(400);
       } else {
-        res.status(200).send(results); 
+        res.status(200).send(results);
       }
     },
   );
 }
 
+export function postDB(values, res) {
+  connection.query(
+    "SELECT p.*, u.*, (SELECT COUNT(*) FROM likes WHERE id_post = ?) AS likes_count FROM publications p JOIN users u ON u.login = p.user WHERE p.id_post = ?;",
+    [values, values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
+      }
+    },
+  );
+}
