@@ -369,3 +369,19 @@ export function likePublicationDB(values, res) {
     },
   );
 }
+
+export function likesUserDB(values, offset, res) {
+  connection.query(
+    "SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
+    [values, values, offset * 10], 
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results); 
+      }
+    },
+  );
+}
+

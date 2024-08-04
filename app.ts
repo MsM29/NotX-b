@@ -159,3 +159,9 @@ app.post("/editPassword", auth, (req: MyRequest, res) => {
 app.get("/like", auth, (req: MyRequest, res) => {
   db.likePublicationDB([req.query.post, req.user.login], res);
 });
+
+app.get("/likes", auth, (req: MyRequest, res) => {
+  console.log(req.query)
+  const offset = req.query.page || 0;
+  db.likesUserDB(req.query.post, offset, res);
+});
