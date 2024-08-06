@@ -164,3 +164,25 @@ app.get("/likes", auth, (req: MyRequest, res) => {
 app.get("/post", auth, (req: MyRequest, res) => {
   db.postDB([req.query.post], res);
 });
+
+app.post("/makeComment", auth, (req: MyRequest, res) => {
+  db.makeCommentDB([req.user.login, req.body.text, new Date(), req.body.post], res);
+});
+
+app.post(
+  "/addMediaComment",
+  auth,
+  storage.uploadComment.single("filedata"),
+  (req: MyRequest, res) => {
+    const filedata = req.file;
+    if (filedata) {
+      const brokenName = req.file.filename.split("_");
+      db.addMediaCommentDB([req.file.filename, brokenName[0], brokenName[1]], res);
+    }
+  },
+);
+
+app.get("/getComments", auth, (req: MyRequest, res) => {
+  const offset = req.query.page || 0;
+  db.getCommentsDB([req.query.post, req.query.post], offset, res);
+});

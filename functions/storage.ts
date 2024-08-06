@@ -23,3 +23,11 @@ const storageWallpaper = multer.diskStorage({
   },
 });
 export const uploadWallpaper = multer({ storage: storageWallpaper });
+
+const storageComment = multer.diskStorage({
+  destination: "./mediaComment/",
+  filename: function (req, file, cb) {
+    cb(null, req.headers.name);
+  },
+});
+export const uploadComment = multer({ storage: storageComment });

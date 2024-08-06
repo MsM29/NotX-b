@@ -384,3 +384,48 @@ export function postDB(values, res) {
     },
   );
 }
+
+export function makeCommentDB(values, res) {
+  connection.query(
+    "INSERT INTO comments (`user`, `text`, `date`, `id_post`) VALUES (?);",
+    [values],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function addMediaCommentDB(values, res) {
+  connection.query(
+    "UPDATE comments SET media=?, mediaType=? WHERE id_comment=?;",
+    [...values],
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function getCommentsDB(values, offset, res) {
+  connection.query(
+    "SELECT c.*,  u.*, (SELECT COUNT(*) FROM comments WHERE id_post = ?) AS total_count FROM  comments c JOIN  users u ON c.user = u.login WHERE  c.id_post = ? ORDER BY c.date DESC LIMIT 10 OFFSET ?;",
+    [...values, parseInt(offset) * 10],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
+      }
+    },
+  );
+}
