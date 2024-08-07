@@ -166,7 +166,10 @@ app.get("/post", auth, (req: MyRequest, res) => {
 });
 
 app.post("/makeComment", auth, (req: MyRequest, res) => {
-  db.makeCommentDB([req.user.login, req.body.text, new Date(), req.body.post], res);
+  db.makeCommentDB(
+    [req.user.login, req.body.text, new Date(), req.body.post],
+    res,
+  );
 });
 
 app.post(
@@ -177,7 +180,10 @@ app.post(
     const filedata = req.file;
     if (filedata) {
       const brokenName = req.file.filename.split("_");
-      db.addMediaCommentDB([req.file.filename, brokenName[0], brokenName[1]], res);
+      db.addMediaCommentDB(
+        [req.file.filename, brokenName[0], brokenName[1]],
+        res,
+      );
     }
   },
 );

@@ -417,7 +417,7 @@ export function addMediaCommentDB(values, res) {
 
 export function getCommentsDB(values, offset, res) {
   connection.query(
-    "SELECT c.*,  u.*, (SELECT COUNT(*) FROM comments WHERE id_post = ?) AS total_count FROM  comments c JOIN  users u ON c.user = u.login WHERE  c.id_post = ? ORDER BY c.date DESC LIMIT 10 OFFSET ?;",
+    "SELECT c.*,  u.*, (SELECT COUNT(*) FROM comments WHERE id_post = ?) AS total_count FROM  comments c JOIN  users u ON c.user = u.login WHERE  c.id_post = ? ORDER BY c.date LIMIT 10 OFFSET ?;",
     [...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
