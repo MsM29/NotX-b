@@ -137,10 +137,10 @@ export function getPublicationDB(values, offset, res) {
   );
 }
 
-export function searchDB(values, offset, res) {
+export function searchDB(login, values, offset, res) {
   connection.query(
-    "SELECT id, name, login, bio, (SELECT COUNT(*) FROM users WHERE name LIKE ? OR login LIKE ?) AS total_count FROM users WHERE name LIKE ? OR login LIKE ? LIMIT 10 OFFSET ?",
-    [...values, ...values, parseInt(offset) * 10],
+    "SELECT u.*, (SELECT COUNT(*) FROM users WHERE name LIKE ? OR login LIKE ?) AS total_count, IFNULL((SELECT s.application FROM subscriptions s WHERE s.user = u.login AND s.sub = ?),1) AS application FROM users u WHERE u.name LIKE ? OR u.login LIKE ? LIMIT 10 OFFSET ?;",
+    [...values, login, ...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
         console.log(err);
@@ -212,6 +212,21 @@ export function subscribeDB(values, res) {
   );
 }
 
+export function subscribePrivateDB(values, res) {
+  connection.query(
+    "INSERT INTO subscriptions (`user`, `sub`, `application`) VALUES (?,0);",
+    [values],
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
 export function unsubscribeDB(values, res) {
   connection.query(
     "DELETE FROM subscriptions WHERE user=? AND sub=?",
@@ -229,7 +244,7 @@ export function unsubscribeDB(values, res) {
 
 export function checkSubscriptionDB(values, res) {
   connection.query(
-    "SELECT * FROM subscriptions WHERE user=? AND sub=?",
+    "SELECT application FROM subscriptions WHERE user=? AND sub=?",
     values,
     (err, results) => {
       if (err) {
@@ -237,7 +252,7 @@ export function checkSubscriptionDB(values, res) {
         res.sendStatus(400);
       } else {
         if (Object.keys(results).length === 0) res.sendStatus(400);
-        else return res.sendStatus(200);
+        else return res.status(200).send(results);
       }
     },
   );
@@ -245,7 +260,7 @@ export function checkSubscriptionDB(values, res) {
 
 export function subscriptionsDB(values, offset, res) {
   connection.query(
-    "SELECT u.*, (SELECT COUNT(*) FROM users u2 JOIN subscriptions s2 ON u2.login = s2.sub WHERE s2.user = ?) AS total_count FROM users u  JOIN subscriptions s ON u.login = s.sub  WHERE s.user = ? LIMIT 10 OFFSET ?;",
+    "SELECT u.*,s.application, (SELECT COUNT(*) FROM users u2 JOIN subscriptions s2 ON u2.login = s2.sub WHERE s2.user = ?) AS total_count FROM users u  JOIN subscriptions s ON u.login = s.sub  WHERE s.user = ? AND s.application=1  LIMIT 10 OFFSET ?;",
     [values, values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -263,7 +278,7 @@ export function subscriptionsDB(values, offset, res) {
 
 export function subscribersDB(values, offset, res) {
   connection.query(
-    "SELECT u.*, (SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ? ) AS total_count FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ? LIMIT 10 OFFSET ?;",
+    "SELECT u.*, s.application, (SELECT COUNT(*) FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ? ) AS total_count FROM users u JOIN subscriptions s ON u.login = s.user WHERE s.sub = ? ORDER BY s.application LIMIT 10 OFFSET ?;",
     [values, values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -281,7 +296,7 @@ export function subscribersDB(values, offset, res) {
 
 export function feedDB(values, offset, res) {
   connection.query(
-    "SELECT p.*, u.*, (SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?)) AS total_count, (SELECT COUNT(*) FROM likes WHERE id_post = p.id_post) AS likes_count FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ?) ORDER BY p.date DESC LIMIT 10 OFFSET ?;",
+    "SELECT p.*, u.*, (SELECT COUNT(*) FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ? AND s.application=1)) AS total_count, (SELECT COUNT(*) FROM likes WHERE id_post = p.id_post) AS likes_count FROM publications AS p INNER JOIN users AS u ON p.user = u.login WHERE u.login IN ( SELECT u.login FROM users u JOIN subscriptions s ON u.login = s.sub WHERE s.user = ? AND s.application=1) ORDER BY p.date DESC LIMIT 10 OFFSET ?;",
     [values, values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
@@ -355,10 +370,10 @@ export function likePublicationDB(values, res) {
   );
 }
 
-export function likesUserDB(values, offset, res) {
+export function likesUserDB(values, login, offset, res) {
   connection.query(
-    "SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
-    [values, values, offset * 10],
+    "   SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count, IFNULL((SELECT s.application FROM subscriptions s WHERE s.user = users.login AND s.sub = ?),1) AS application FROM users WHERE users.login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
+    [values, login, values, offset * 10],
     (err, results) => {
       if (err) {
         console.log(err);
@@ -425,6 +440,36 @@ export function getCommentsDB(values, offset, res) {
         res.sendStatus(400);
       } else {
         res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function acceptApplicationDB(values, res) {
+  connection.query(
+    "UPDATE subscriptions SET application=1 WHERE user=? AND sub=?;",
+    [...values],
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
+export function rejectApplicationDB(values, res) {
+  connection.query(
+    "DELETE FROM subscriptions WHERE user=? AND sub=?;",
+    [...values],
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
       }
     },
   );

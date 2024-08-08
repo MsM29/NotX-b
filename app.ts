@@ -74,9 +74,14 @@ app.get("/getPublication", auth, (req: MyRequest, res) => {
   db.getPublicationDB([req.user.login, req.user.login], offset, res);
 });
 
-app.get("/search", auth, (req, res) => {
+app.get("/search", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.searchDB([`%${req.query.user}%`, `%${req.query.user}%`], offset, res);
+  db.searchDB(
+    req.user.login,
+    [`%${req.query.user}%`, `%${req.query.user}%`],
+    offset,
+    res,
+  );
 });
 
 app.get("/delete", auth, (req, res) => {
@@ -115,7 +120,9 @@ app.get("/getUserPublication", auth, (req: MyRequest, res) => {
 });
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
-  db.subscribeDB([req.user.login, req.query.login], res);
+  if (req.query.privateStatus === "1")
+    db.subscribePrivateDB([req.user.login, req.query.login], res);
+  else db.subscribeDB([req.user.login, req.query.login], res);
 });
 
 app.get("/unsubscribe", auth, (req: MyRequest, res) => {
@@ -158,7 +165,7 @@ app.get("/like", auth, (req: MyRequest, res) => {
 
 app.get("/likes", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
-  db.likesUserDB(req.query.post, offset, res);
+  db.likesUserDB(req.query.post, req.user.login, offset, res);
 });
 
 app.get("/post", auth, (req: MyRequest, res) => {
@@ -191,4 +198,12 @@ app.post(
 app.get("/getComments", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
   db.getCommentsDB([req.query.post, req.query.post], offset, res);
+});
+
+app.get("/acceptApplication", auth, (req: MyRequest, res) => {
+  db.acceptApplicationDB([req.query.user, req.user.login], res);
+});
+
+app.get("/rejectApplication", auth, (req: MyRequest, res) => {
+  db.rejectApplicationDB([req.query.user, req.user.login], res);
 });
