@@ -88,6 +88,10 @@ app.get("/delete", auth, (req, res) => {
   db.deletePublicationDB([req.query.id_post], res);
 });
 
+app.get("/deleteComment", auth, (req, res) => {
+  db.deleteCommentDB([req.query.id_post], res);
+});
+
 app.post("/editProfile", auth, (req: MyRequest, res) => {
   db.editProfileDB([req.body.name, req.body.bio, req.user.id], res);
 });
@@ -163,9 +167,18 @@ app.get("/like", auth, (req: MyRequest, res) => {
   db.likePublicationDB([req.query.post, req.user.login], res);
 });
 
+app.get("/likeComment", auth, (req: MyRequest, res) => {
+  db.likeCommentDB([req.query.post, req.user.login], res);
+});
+
 app.get("/likes", auth, (req: MyRequest, res) => {
   const offset = req.query.page || 0;
   db.likesUserDB(req.query.post, req.user.login, offset, res);
+});
+
+app.get("/likesComment", auth, (req: MyRequest, res) => {
+  const offset = req.query.page || 0;
+  db.likesCommentUserDB(req.query.post, req.user.login, offset, res);
 });
 
 app.get("/post", auth, (req: MyRequest, res) => {

@@ -167,6 +167,21 @@ export function deletePublicationDB(values, res) {
   );
 }
 
+export function deleteCommentDB(values, res) {
+  connection.query(
+    "DELETE FROM comments WHERE id_comment=?",
+    values,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
+}
+
 export function editProfileDB(values, res) {
   connection.query(
     "UPDATE users SET name=?, bio=? WHERE id=?;",
@@ -370,9 +385,48 @@ export function likePublicationDB(values, res) {
   );
 }
 
+export function likeCommentDB(values, res) {
+  connection.query(
+    "INSERT INTO likes (id_comment, login) VALUES (?);",
+    [values],
+    (err) => {
+      if (err) {
+        connection.query(
+          "DELETE FROM likes WHERE id_comment=? AND login=?",
+          values,
+          (err) => {
+            if (err) {
+              res.sendStatus(400);
+            } else {
+              res.json({ message: "remove" });
+            }
+          },
+        );
+      } else {
+        res.json({ message: "put" });
+      }
+    },
+  );
+}
+
 export function likesUserDB(values, login, offset, res) {
   connection.query(
-    "   SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count, IFNULL((SELECT s.application FROM subscriptions s WHERE s.user = users.login AND s.sub = ?),1) AS application FROM users WHERE users.login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
+    "SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_post=?)) AS total_count, IFNULL((SELECT s.application FROM subscriptions s WHERE s.user = users.login AND s.sub = ?),1) AS application FROM users WHERE users.login IN (SELECT login FROM likes WHERE id_post=?) LIMIT 10 OFFSET ?;",
+    [values, login, values, offset * 10],
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else {
+        res.status(200).send(results);
+      }
+    },
+  );
+}
+
+export function likesCommentUserDB(values, login, offset, res) {
+  connection.query(
+    "SELECT *, (SELECT COUNT(*) FROM users WHERE login IN (SELECT login FROM likes WHERE id_comment=?)) AS total_count, IFNULL((SELECT s.application FROM subscriptions s WHERE s.user = users.login AND s.sub = ?),1) AS application FROM users WHERE users.login IN (SELECT login FROM likes WHERE id_comment=?) LIMIT 10 OFFSET ?;",
     [values, login, values, offset * 10],
     (err, results) => {
       if (err) {
@@ -432,7 +486,7 @@ export function addMediaCommentDB(values, res) {
 
 export function getCommentsDB(values, offset, res) {
   connection.query(
-    "SELECT c.*,  u.*, (SELECT COUNT(*) FROM comments WHERE id_post = ?) AS total_count FROM  comments c JOIN  users u ON c.user = u.login WHERE  c.id_post = ? ORDER BY c.date LIMIT 10 OFFSET ?;",
+    "SELECT c.*,  u.*, (SELECT COUNT(*) FROM comments WHERE id_post = ?) AS total_count, (SELECT COUNT(*) FROM likes WHERE id_comment = c.id_comment) AS likes_count FROM  comments c JOIN  users u ON c.user = u.login WHERE  c.id_post = ? ORDER BY c.date LIMIT 10 OFFSET ?;",
     [...values, parseInt(offset) * 10],
     (err, results) => {
       if (err) {
