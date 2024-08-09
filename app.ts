@@ -64,7 +64,7 @@ app.post(
     const filedata = req.file;
     if (filedata) {
       const brokenName = req.file.filename.split("_");
-      db.addMediaDB([req.file.filename, brokenName[0], brokenName[2]], res);
+      db.addMediaDB([req.file.filename, brokenName[0], brokenName[1]], res);
     }
   },
 );
