@@ -64,7 +64,7 @@ app.post(
     const filedata = req.file;
     if (filedata) {
       const brokenName = req.file.filename.split("_");
-      db.addMediaDB([req.file.filename, brokenName[0], brokenName[2]], res);
+      db.addMediaDB([req.file.filename, brokenName[0], brokenName[1]], res);
     }
   },
 );
@@ -125,8 +125,8 @@ app.get("/getUserPublication", auth, (req: MyRequest, res) => {
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
   if (req.query.privateStatus === "1")
-    db.subscribePrivateDB([req.user.login, req.query.login], res);
-  else db.subscribeDB([req.user.login, req.query.login], res);
+    db.subscribeDB([req.user.login, req.query.login, 0], res);
+  else db.subscribeDB([req.user.login, req.query.login, 1], res);
 });
 
 app.get("/unsubscribe", auth, (req: MyRequest, res) => {

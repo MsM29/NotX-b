@@ -168,18 +168,14 @@ export function deletePublicationDB(values, res) {
 }
 
 export function deleteCommentDB(values, res) {
-  connection.query(
-    "DELETE FROM comments WHERE id_comment=?",
-    values,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        res.sendStatus(200);
-      }
-    },
-  );
+  connection.query("DELETE FROM comments WHERE id_comment=?", values, (err) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      res.sendStatus(200);
+    }
+  });
 }
 
 export function editProfileDB(values, res) {
@@ -214,22 +210,7 @@ export function userDB(values, res) {
 
 export function subscribeDB(values, res) {
   connection.query(
-    "INSERT INTO subscriptions (`user`, `sub`) VALUES (?);",
-    [values],
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        res.sendStatus(200);
-      }
-    },
-  );
-}
-
-export function subscribePrivateDB(values, res) {
-  connection.query(
-    "INSERT INTO subscriptions (`user`, `sub`, `application`) VALUES (?,0);",
+    "INSERT INTO subscriptions (`user`, `sub`, `application`) VALUES (?);",
     [values],
     (err) => {
       if (err) {
@@ -266,7 +247,7 @@ export function checkSubscriptionDB(values, res) {
         console.log(err);
         res.sendStatus(400);
       } else {
-        if (Object.keys(results).length === 0) res.sendStatus(400);
+        if (Object.keys(results).length === 0) res.sendStatus(204);
         else return res.status(200).send(results);
       }
     },
