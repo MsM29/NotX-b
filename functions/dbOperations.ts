@@ -168,18 +168,14 @@ export function deletePublicationDB(values, res) {
 }
 
 export function deleteCommentDB(values, res) {
-  connection.query(
-    "DELETE FROM comments WHERE id_comment=?",
-    values,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(400);
-      } else {
-        res.sendStatus(200);
-      }
-    },
-  );
+  connection.query("DELETE FROM comments WHERE id_comment=?", values, (err) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      res.sendStatus(200);
+    }
+  });
 }
 
 export function editProfileDB(values, res) {
