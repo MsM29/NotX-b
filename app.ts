@@ -9,7 +9,7 @@ import * as storage from "./functions/storage";
 const app = express();
 
 ViteExpress.listen(app, 3000, () =>
-  console.log("Server is listening on port 3000..."),
+  console.log("Server is listening on port 3000...")
 );
 
 app.use(express.urlencoded({ extended: false }));
@@ -66,7 +66,7 @@ app.post(
       const brokenName = req.file.filename.split("_");
       db.addMediaDB([req.file.filename, brokenName[0], brokenName[1]], res);
     }
-  },
+  }
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
@@ -80,7 +80,7 @@ app.get("/search", auth, (req: MyRequest, res) => {
     req.user.login,
     [`%${req.query.user}%`, `%${req.query.user}%`],
     offset,
-    res,
+    res
   );
 });
 
@@ -102,7 +102,7 @@ app.post(
   storage.uploadProfilePhoto.single("filedata"),
   (req, res) => {
     res.sendStatus(200);
-  },
+  }
 );
 
 app.post(
@@ -111,7 +111,7 @@ app.post(
   storage.uploadWallpaper.single("filedata"),
   (req, res) => {
     res.sendStatus(200);
-  },
+  }
 );
 
 app.get("/users", auth, (req: MyRequest, res) => {
@@ -125,8 +125,8 @@ app.get("/getUserPublication", auth, (req: MyRequest, res) => {
 
 app.get("/subscribe", auth, (req: MyRequest, res) => {
   if (req.query.privateStatus === "1")
-    db.subscribePrivateDB([req.user.login, req.query.login], res);
-  else db.subscribeDB([req.user.login, req.query.login], res);
+    db.subscribeDB([req.user.login, req.query.login, 0], res);
+  else db.subscribeDB([req.user.login, req.query.login, 1], res);
 });
 
 app.get("/unsubscribe", auth, (req: MyRequest, res) => {
@@ -188,7 +188,7 @@ app.get("/post", auth, (req: MyRequest, res) => {
 app.post("/makeComment", auth, (req: MyRequest, res) => {
   db.makeCommentDB(
     [req.user.login, req.body.text, new Date(), req.body.post],
-    res,
+    res
   );
 });
 
@@ -202,10 +202,10 @@ app.post(
       const brokenName = req.file.filename.split("_");
       db.addMediaCommentDB(
         [req.file.filename, brokenName[0], brokenName[1]],
-        res,
+        res
       );
     }
-  },
+  }
 );
 
 app.get("/getComments", auth, (req: MyRequest, res) => {
