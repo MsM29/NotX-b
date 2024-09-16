@@ -1,7 +1,7 @@
 import multer from "multer";
 
 const storage = multer.diskStorage({
-  destination: "./mediaPublication/",
+  destination: "./public/mediaPublication/",
   filename: function (req, file, cb) {
     cb(null, req.headers.name);
   },
@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage: storage });
 
 const storageProfilePhoto = multer.diskStorage({
-  destination: "./mediaProfile/profilePhoto/",
+  destination: "./public/mediaProfile/profilePhoto/",
   filename: function (req, file, cb) {
     cb(null, req.headers.name);
   },
@@ -17,7 +17,7 @@ const storageProfilePhoto = multer.diskStorage({
 export const uploadProfilePhoto = multer({ storage: storageProfilePhoto });
 
 const storageWallpaper = multer.diskStorage({
-  destination: "./mediaProfile/wallpaper/",
+  destination: "./public/mediaProfile/wallpaper/",
   filename: function (req, file, cb) {
     cb(null, req.headers.name);
   },
@@ -25,7 +25,7 @@ const storageWallpaper = multer.diskStorage({
 export const uploadWallpaper = multer({ storage: storageWallpaper });
 
 const storageComment = multer.diskStorage({
-  destination: "./mediaComment/",
+  destination: "./public/mediaComment/",
   filename: function (req, file, cb) {
     cb(null, req.headers.name);
   },

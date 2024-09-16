@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { generateAccessToken } from "./jwt";
+import { generateAccessToken } from "./jwt.js";
 import mysql from "mysql2";
 import fs from "fs";
 
@@ -58,14 +58,14 @@ export function registrationDB(values, res) {
         });
       } else {
         fs.copyFile(
-          "../../NotX-f/vite-express-project/images/defaultPhotoProfile.png",
-          `../../NotX-f/vite-express-project/mediaProfile/profilePhoto/${values[0]}.png`,
+          "../../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
+          `../../NotX-f/vite-express-project/public/mediaProfile/profilePhoto/${values[0]}.png`,
           (err) => {
             if (err) console.log(err);
             else
               fs.copyFile(
-                "../../NotX-f/vite-express-project/images/defaultPhotoProfile.png",
-                `../../NotX-f/vite-express-project/mediaProfile/wallpaper/${values[0]}.png`,
+                "../../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
+                `../../NotX-f/vite-express-project/public/mediaProfile/wallpaper/${values[0]}.png`,
                 (err) => {
                   if (err) console.log(err);
                   else res.sendStatus(200);
