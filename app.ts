@@ -1,19 +1,23 @@
 import express, { Request } from "express";
-import ViteExpress from "vite-express";
 import crypto from "crypto";
 import { auth } from "./functions/jwt";
 import { Express } from "multer";
 import * as db from "./functions/dbOperations";
 import * as storage from "./functions/storage";
-
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
-ViteExpress.listen(app, 3000, () =>
-  console.log("Server is listening on port 3000..."),
-);
+app.listen(3000, () => console.log("Server is listening on port 3000..."));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(
+  "/",
+  express.static(path.dirname(__dirname) + "/NotX-f/vite-express-project/dist/")
+);
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -28,6 +32,8 @@ app.post("/registration", (req, res) => {
 });
 
 interface MyRequest extends Request {
+  body: any;
+  query: any;
   user: {
     id: number;
     name: string;
@@ -66,7 +72,7 @@ app.post(
       const brokenName = req.file.filename.split("_");
       db.addMediaDB([req.file.filename, brokenName[0], brokenName[1]], res);
     }
-  },
+  }
 );
 
 app.get("/getPublication", auth, (req: MyRequest, res) => {
@@ -80,7 +86,7 @@ app.get("/search", auth, (req: MyRequest, res) => {
     req.user.login,
     [`%${req.query.user}%`, `%${req.query.user}%`],
     offset,
-    res,
+    res
   );
 });
 
@@ -102,7 +108,7 @@ app.post(
   storage.uploadProfilePhoto.single("filedata"),
   (req, res) => {
     res.sendStatus(200);
-  },
+  }
 );
 
 app.post(
@@ -111,7 +117,7 @@ app.post(
   storage.uploadWallpaper.single("filedata"),
   (req, res) => {
     res.sendStatus(200);
-  },
+  }
 );
 
 app.get("/users", auth, (req: MyRequest, res) => {
@@ -188,7 +194,7 @@ app.get("/post", auth, (req: MyRequest, res) => {
 app.post("/makeComment", auth, (req: MyRequest, res) => {
   db.makeCommentDB(
     [req.user.login, req.body.text, new Date(), req.body.post],
-    res,
+    res
   );
 });
 
@@ -202,10 +208,10 @@ app.post(
       const brokenName = req.file.filename.split("_");
       db.addMediaCommentDB(
         [req.file.filename, brokenName[0], brokenName[1]],
-        res,
+        res
       );
     }
-  },
+  }
 );
 
 app.get("/getComments", auth, (req: MyRequest, res) => {

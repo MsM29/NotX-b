@@ -1,27 +1,19 @@
 {
   "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.ts"
+  },
   "dependencies": {
-    "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-session": "^1.18.0",
+    "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.10.3",
-    "vite": "^5.3.4",
-    "vite-express": "^0.17.0"
+    "mysql2": "^3.11.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.7.0",
-    "@types/dotenv": "^8.2.0",
-    "@types/express": "^4.17.21",
-    "@types/express-session": "^1.18.0",
-    "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^20.14.10",
-    "eslint": "^9.7.0",
-    "eslint-plugin-react": "^7.35.0",
-    "globals": "^15.8.0",
-    "typescript-eslint": "^8.0.1"
+    "@types/node": "^22.5.5",
+    "tsx": "^4.19.1"
   }
 }
