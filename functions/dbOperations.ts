@@ -24,12 +24,12 @@ export function loginDB(values, res) {
     (err, results) => {
       if (err) {
         console.log(err);
-        return res.status(400).json({ message: "Неизвестная ошибка входа!" });
+        return res.status(400).json({ message: "unknown" });
       } else {
         if (Object.keys(results).length === 0)
           res
             .status(400)
-            .json({ message: "Неверный логин или пароль!" });
+            .json({ message: "errorLogin" });
         else {
           const token = generateAccessToken(
             results[0].id,
@@ -54,7 +54,7 @@ export function registrationDB(values, res) {
       if (err) {
         console.log(err);
         return res.status(400).json({
-          message: `Пользователь с такой почтой уже существует!`,
+          message: `emailExist`,
         });
       } else {
         fs.copyFile(
@@ -327,15 +327,15 @@ export function editPasswordDB(values, res) {
       if (err) {
         console.log(err);
         return res.status(400).json({
-          message: "Неверный пароль!",
+          message: "invalidPassword",
         });
       } else {
         if (Object.entries(results)[1][1] === 0)
           res.status(400).json({
-            message: "Неверный пароль!",
+            message: "invalidPassword",
           });
         else {
-          return res.sendStatus(200);
+          return res.status(200).json({message: "changesSaved"});
         }
       }
     },
