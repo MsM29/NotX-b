@@ -24,12 +24,12 @@ export function loginDB(values, res) {
     (err, results) => {
       if (err) {
         console.log(err);
-        return res.status(400).json({ message: "Ошибка входа" });
+        return res.status(400).json({ message: "unknown" });
       } else {
         if (Object.keys(results).length === 0)
           res
             .status(400)
-            .json({ message: "Ошибка! Такого пользователя не существует" });
+            .json({ message: "errorLogin" });
         else {
           const token = generateAccessToken(
             results[0].id,
@@ -54,18 +54,18 @@ export function registrationDB(values, res) {
       if (err) {
         console.log(err);
         return res.status(400).json({
-          message: "Ошибка! Пользователь с такой почтой уже существует!",
+          message: `emailExist`,
         });
       } else {
         fs.copyFile(
-          "../../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
-          `../../NotX-f/vite-express-project/public/mediaProfile/profilePhoto/${values[0]}.png`,
+          "../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
+          `../NotX-f/vite-express-project/public/mediaProfile/profilePhoto/${values[0]}.png`,
           (err) => {
             if (err) console.log(err);
             else
               fs.copyFile(
-                "../../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
-                `../../NotX-f/vite-express-project/public/mediaProfile/wallpaper/${values[0]}.png`,
+                "../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
+                `../NotX-f/vite-express-project/public/mediaProfile/wallpaper/${values[0]}.png`,
                 (err) => {
                   if (err) console.log(err);
                   else res.sendStatus(200);
@@ -327,15 +327,15 @@ export function editPasswordDB(values, res) {
       if (err) {
         console.log(err);
         return res.status(400).json({
-          message: "Неверный пароль!",
+          message: "invalidPassword",
         });
       } else {
         if (Object.entries(results)[1][1] === 0)
           res.status(400).json({
-            message: "Неверный пароль!",
+            message: "invalidPassword",
           });
         else {
-          return res.sendStatus(200);
+          return res.status(200).json({message: "changesSaved"});
         }
       }
     },
