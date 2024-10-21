@@ -19,7 +19,7 @@ const connection = mysql.createConnection({
 
 export function loginDB(values, res) {
   connection.query(
-    `SELECT * FROM users WHERE email=? AND password=?;`,
+    `SELECT * FROM users WHERE (email=? OR login=?) AND password=?;`,
     values,
     (err, results) => {
       if (err) {
@@ -27,14 +27,12 @@ export function loginDB(values, res) {
         return res.status(400).json({ message: "unknown" });
       } else {
         if (Object.keys(results).length === 0)
-          res
-            .status(400)
-            .json({ message: "errorLogin" });
+          res.status(400).json({ message: "errorLogin" });
         else {
           const token = generateAccessToken(
             results[0].id,
             results[0].login,
-            results[0].email,
+            results[0].email
           );
           res.cookie("token", `Bearer ${token}`, {
             httpOnly: true,
@@ -42,7 +40,7 @@ export function loginDB(values, res) {
           return res.sendStatus(200);
         }
       }
-    },
+    }
   );
 }
 
@@ -53,9 +51,14 @@ export function registrationDB(values, res) {
     function (err) {
       if (err) {
         console.log(err);
-        return res.status(400).json({
-          message: `emailExist`,
-        });
+        if (err.message.includes("for key 'users.email'"))
+          return res.status(400).json({
+            message: `emailExist`,
+          });
+        if (err.message.includes("for key 'users.login'"))
+          return res.status(400).json({
+            message: `loginExist`,
+          });
       } else {
         fs.copyFile(
           "../NotX-f/vite-express-project/public/images/defaultPhotoProfile.png",
@@ -69,12 +72,12 @@ export function registrationDB(values, res) {
                 (err) => {
                   if (err) console.log(err);
                   else res.sendStatus(200);
-                },
+                }
               );
-          },
+          }
         );
       }
-    },
+    }
   );
 }
 
@@ -88,7 +91,7 @@ export function homeDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -103,7 +106,7 @@ export function makePublicationDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -118,7 +121,7 @@ export function addMediaDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -133,7 +136,7 @@ export function getPublicationDB(values, offset, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -148,7 +151,7 @@ export function searchDB(login, values, offset, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -163,7 +166,7 @@ export function deletePublicationDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -189,7 +192,7 @@ export function editProfileDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -204,7 +207,7 @@ export function userDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -219,7 +222,7 @@ export function subscribeDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -234,7 +237,7 @@ export function unsubscribeDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -250,7 +253,7 @@ export function checkSubscriptionDB(values, res) {
         if (Object.keys(results).length === 0) res.sendStatus(204);
         else return res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -268,7 +271,7 @@ export function subscriptionsDB(values, offset, res) {
           res.status(200).send(results);
         }
       }
-    },
+    }
   );
 }
 
@@ -286,7 +289,7 @@ export function subscribersDB(values, offset, res) {
           res.status(200).send(results);
         }
       }
-    },
+    }
   );
 }
 
@@ -304,7 +307,7 @@ export function feedDB(values, offset, res) {
           res.status(200).send(results);
         }
       }
-    },
+    }
   );
 }
 
@@ -335,10 +338,10 @@ export function editPasswordDB(values, res) {
             message: "invalidPassword",
           });
         else {
-          return res.status(200).json({message: "changesSaved"});
+          return res.status(200).json({ message: "changesSaved" });
         }
       }
-    },
+    }
   );
 }
 
@@ -357,12 +360,12 @@ export function likePublicationDB(values, res) {
             } else {
               res.json({ message: "remove" });
             }
-          },
+          }
         );
       } else {
         res.json({ message: "put" });
       }
-    },
+    }
   );
 }
 
@@ -381,12 +384,12 @@ export function likeCommentDB(values, res) {
             } else {
               res.json({ message: "remove" });
             }
-          },
+          }
         );
       } else {
         res.json({ message: "put" });
       }
-    },
+    }
   );
 }
 
@@ -401,7 +404,7 @@ export function likesUserDB(values, login, offset, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -416,7 +419,7 @@ export function likesCommentUserDB(values, login, offset, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -431,7 +434,7 @@ export function postDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -446,7 +449,7 @@ export function makeCommentDB(values, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -461,7 +464,7 @@ export function addMediaCommentDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -476,7 +479,7 @@ export function getCommentsDB(values, offset, res) {
       } else {
         res.status(200).send(results);
       }
-    },
+    }
   );
 }
 
@@ -491,7 +494,7 @@ export function acceptApplicationDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }
 
@@ -506,6 +509,6 @@ export function rejectApplicationDB(values, res) {
       } else {
         res.sendStatus(200);
       }
-    },
+    }
   );
 }

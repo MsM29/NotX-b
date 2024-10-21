@@ -22,7 +22,7 @@ app.use(
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const hash = crypto.createHash("md5").update(password).digest("hex");
-  db.loginDB([email, hash], res);
+  db.loginDB([email, email, hash], res);
 });
 
 app.post("/registration", (req, res) => {
